@@ -8,7 +8,11 @@
     <div class="flex items-center gap-3 mb-4">
         <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
         <div>
-            <p class="font-semibold text-gray-800">{{ optional($post->user)->name ?? 'Unknown' }}</p>
+            <p class="font-semibold text-gray-800">
+                <a href="/profile/{{ optional($post->user)->id ?? '#' }}" class="hover:underline">
+                    {{ optional($post->user)->name ?? 'Unknown' }}
+                </a>
+            </p>
             <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
         </div>
     </div>
@@ -24,23 +28,53 @@
         <p class="text-gray-700">{{ $post->description }}</p>
     </div>
 
-    <!-- ACTIONS -->
+    <!-- POST STATS & ACTIONS -->
     <div class="flex justify-between items-center text-gray-500 mb-6">
-        <div class="flex gap-4">
-            <button class="hover:text-black transition">❤️ Like</button>
-            <button class="hover:text-black transition">💬 Comment</button>
+
+        <div class="flex gap-4 items-center">
+
+            @auth
+                @php
+                    $likedByUser = $post->likes()->where('user_id', auth()->id())->exists();
+                @endphp
+
+                <button class="like-btn flex items-center gap-1 hover:text-black transition" data-id="{{ $post->id }}">
+                    <span class="heart-symbol {{ $likedByUser ? 'text-red-600' : 'text-gray-400' }}">
+                        {{ $likedByUser ? '❤️' : '♡' }}
+                    </span>
+                    <span class="likes-count">{{ $post->likes()->count() }}</span>
+                </button>
+
+                <button class="hover:text-black transition">💬 Comment</button>
+
+            @else
+                <!-- Guests: read-only like + comment count -->
+                <div class="flex items-center gap-1">
+                    <span class="text-gray-400">❤️</span>
+                    <span>{{ $post->likes()->count() }}</span>
+                </div>
+
+                <div class="flex items-center gap-1">
+                    <span class="text-gray-400">💬</span>
+                    <span>{{ $post->comments()->count() }}</span>
+                </div>
+            @endauth
+
             <button class="hover:text-black transition">🔗 Share</button>
+
         </div>
+
         @can('delete', $post)
-        <form action="/delete-post/{{$post->id}}" method="POST">
+        <form action="/delete-post/{{$post->id}}" method="POST" class="inline">
             @csrf
             @method('DELETE')
             <button class="hover:text-red-600 transition">🗑 Delete</button>
         </form>
         @endcan
+
     </div>
 
-    <!-- ALL COMMENTS -->
+    <!-- COMMENTS -->
     <div class="bg-white p-4 rounded-xl shadow-md mb-6">
         <h3 class="font-semibold mb-3 text-gray-800">Comments ({{ $post->comments->count() }})</h3>
 
@@ -48,7 +82,7 @@
             <div class="mb-2">
                 <p class="text-sm">
                     <strong>
-                        @if(auth()->id() === $comment->user->id)
+                        @if(auth()->check() && auth()->id() === $comment->user->id)
                             You
                         @else
                             <a href="/profile/{{ $comment->user->id }}" class="hover:underline">{{ $comment->user->name }}</a>
@@ -61,13 +95,42 @@
         @endforelse
     </div>
 
-    <!-- COMMENT FORM -->
-    @if(auth()->check())
+    <!-- COMMENT FORM (Logged-in users only) -->
+    @auth
     <div class="bg-white p-4 rounded-xl shadow-md">
         @include('components.comment-form', ['post' => $post])
     </div>
-    @endif
+    @endauth
 
 </div>
+
+@auth
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.like-btn').click(function() {
+        let btn = $(this);
+        let postId = btn.data('id');
+
+        btn.prop('disabled', true);
+
+        $.post('/post/' + postId + '/like', {
+            _token: '{{ csrf_token() }}'
+        }, function(data) {
+            btn.find('.likes-count').text(data.likes_count);
+
+            let heart = btn.find('.heart-symbol');
+            if(data.status === 'liked') {
+                heart.text('❤️').removeClass('text-gray-400').addClass('text-red-600');
+            } else {
+                heart.text('♡').removeClass('text-red-600').addClass('text-gray-400');
+            }
+
+            btn.prop('disabled', false);
+        });
+    });
+});
+</script>
+@endauth
 
 @endsection

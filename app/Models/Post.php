@@ -14,6 +14,11 @@ class Post extends Model
         'user_id'
     ];
 
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'likes');
+    }
+
     public function user()
     {
         return  $this->belongsTo(User::class, 'user_id');
@@ -21,6 +26,6 @@ class Post extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class,);
     }
 }

@@ -25,6 +25,11 @@ class User extends Authenticatable
         'is_verified',
     ];
 
+    public function likes()
+    {
+        return $this->belongsToMany(Post::class, 'likes');
+    }
+
     public function posts()
     {
         return $this->hasMany(Post::class);

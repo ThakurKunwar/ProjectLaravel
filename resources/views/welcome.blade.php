@@ -30,6 +30,7 @@
       @foreach($posts as $post)
         <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
           
+          <a href="/post/{{$post->id}}">
           @if($post->image)
 
 
@@ -37,6 +38,7 @@
           
             <img src="{{ Storage::url($post->image) }}" alt="Post Image" class="w-full h-40 object-cover">
           @endif
+          </a>
 
           <div class="p-4 flex flex-col flex-1">
             <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ $post->title }}</h3>

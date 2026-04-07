@@ -23,12 +23,9 @@
 
             <!-- 📊 STATS -->
             <div class="flex justify-center md:justify-start gap-6 text-sm text-gray-600 mb-4">
-
                 <span><strong>{{ $posts->count() }}</strong> Posts</span>
-
                 <span><strong>0</strong> Followers</span>
                 <span><strong>0</strong> Following</span>
-
             </div>
 
             <!-- 🔘 ACTION BUTTON -->
@@ -60,67 +57,110 @@
 
 <!-- 📰 USER POSTS -->
 <div class="mt-6">
-
     <h3 class="text-xl font-semibold text-gray-800 mb-4">
         Posts by {{ $user->name }}
     </h3>
 
     @forelse($posts as $post)
-        <a href="/post/{{ $post->id }}">
-        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6 hover:shadow-lg transition">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6 hover:shadow-lg transition">
 
-            <!-- IMAGE -->
-            @if($post->image)
-                <img src="{{ Storage::url($post->image) }}"
-                     class="w-full max-h-96 object-cover">
-            @endif
+        <!-- POST IMAGE -->
+        @if($post->image)
+            <a href="/post/{{ $post->id }}">
+                <img src="{{ Storage::url($post->image) }}" class="w-full max-h-96 object-cover">
+            </a>
+        @endif
 
-            <!-- CONTENT -->
-            <div class="p-4">
-                <h3 class="font-semibold text-lg text-gray-800">
-                    {{ $post->title }}
-                </h3>
+        <!-- POST CONTENT -->
+        <div class="p-4">
+            <h3 class="font-semibold text-lg text-gray-800 mb-1">{{ $post->title }}</h3>
+            <p class="text-gray-600 text-sm">{{ $post->description }}</p>
+            <p class="text-xs text-gray-400 mt-2">{{ $post->created_at->diffForHumans() }}</p>
+        </div>
 
-                <p class="text-gray-600 text-sm mt-1">
-                    {{ $post->description }}
-                </p>
+        <!-- POST STATS & ACTIONS -->
+        <div class="flex justify-between items-center px-4 py-2 border-t text-gray-500 text-sm">
 
-                <p class="text-xs text-gray-400 mt-2">
-                    {{ $post->created_at->diffForHumans() }}
-                </p>
+            <div class="flex gap-4 items-center">
+                @auth
+                    @php
+                        $likedByUser = $post->likes()->where('user_id', auth()->id())->exists();
+                    @endphp
+
+                    <button class="like-btn flex items-center gap-1 hover:text-black transition" data-id="{{ $post->id }}">
+                        <span class="heart-symbol {{ $likedByUser ? 'text-red-600' : 'text-gray-400' }}">
+                            {{ $likedByUser ? '❤️' : '♡' }}
+                        </span>
+                        <span class="likes-count">{{ $post->likes()->count() }}</span>
+                    </button>
+
+                    <span>💬 {{ $post->comments()->count() }}</span>
+                @else
+                    <!-- Guests see likes & comments counts only -->
+                    <span>❤️ {{ $post->likes()->count() }}</span>
+                    <span>💬 {{ $post->comments()->count() }}</span>
+                @endauth
             </div>
 
-            <!-- COMMENTS PREVIEW -->
-            @if($post->comments->count() > 0)
-            <div class="px-4 py-2 border-t">
-                <h4 class="text-sm font-semibold text-gray-700 mb-1">Comments:</h4>
-                  <!-- COMMENTS PREVIEW -->
-    <div class="px-4 py-2 border-t">
-        @foreach($post->comments->take(3) as $comment)
-            @if(auth()->id() === $comment->user->id)
-                <p class="text-sm mb-1"><strong>{{ $comment->user->name }}:</strong> {{ $comment->body }}</p>
-            @else
-                <a href="/profile/{{ $comment->user->id }}">
-                    <p class="text-sm mb-1"><strong>{{ $comment->user->name }}:</strong> {{ $comment->body }}</p>
+            <a href="/post/{{ $post->id }}" class="hover:text-black transition">🔗 View Post</a>
+
+        </div>
+
+        <!-- COMMENTS PREVIEW (up to 3) -->
+        @if($post->comments->count() > 0)
+        <div class="px-4 py-2 border-t">
+            @foreach($post->comments->take(3) as $comment)
+                <div class="text-sm mb-1">
+                    <a href="/profile/{{ $comment->user->id }}" class="font-semibold text-gray-800 hover:underline">
+                        {{ $comment->user->name }}
+                    </a>:
+                    <span class="text-gray-700">{{ $comment->body }}</span>
+                </div>
+            @endforeach
+
+            @if($post->comments->count() > 3)
+                <a href="/post/{{ $post->id }}" class="text-blue-500 text-sm hover:underline">
+                    See all comments...
                 </a>
             @endif
-        @endforeach
-
-        @if($post->comments->count() > 3)
-            <a href="/post/{{ $post->id }}" class="text-blue-500 text-sm hover:underline">See more comments...</a>
+        </div>
         @endif
+
     </div>
-            </div>
-            @endif
-
-        </div>
-        </a>
     @empty
-        <div class="bg-white p-6 rounded-xl shadow-md text-center text-gray-500">
-            No posts yet.
-        </div>
+    <div class="bg-white p-6 rounded-xl shadow-md text-center text-gray-500">
+        No posts yet.
+    </div>
     @endforelse
-
 </div>
+
+@auth
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.like-btn').click(function() {
+        let btn = $(this);
+        let postId = btn.data('id');
+
+        btn.prop('disabled', true);
+
+        $.post('/post/' + postId + '/like', {
+            _token: '{{ csrf_token() }}'
+        }, function(data) {
+            btn.find('.likes-count').text(data.likes_count);
+
+            let heart = btn.find('.heart-symbol');
+            if(data.status === 'liked') {
+                heart.text('❤️').removeClass('text-gray-400').addClass('text-red-600');
+            } else {
+                heart.text('♡').removeClass('text-red-600').addClass('text-gray-400');
+            }
+
+            btn.prop('disabled', false);
+        });
+    });
+});
+</script>
+@endauth
 
 @endsection

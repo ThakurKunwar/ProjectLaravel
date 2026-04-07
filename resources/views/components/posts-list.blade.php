@@ -1,7 +1,7 @@
 @props(['posts'])
 
 @foreach($posts as $post)
-<a href="/post/{{$post->id}}">
+
 <div x-data="{ showCommentForm: false }" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
 
     <!-- USER INFO -->
@@ -14,9 +14,11 @@
     </div>
 
     <!-- IMAGE -->
+    <a href="/post/{{$post->id}}">
     @if($post->image)
         <img src="{{ Storage::url($post->image) }}" class="w-full max-h-60 object-cover">
     @endif
+    </a>
 
     <!-- CONTENT -->
     <div class="p-4">
@@ -27,7 +29,21 @@
     <!-- ACTIONS -->
     <div class="flex justify-between items-center px-4 py-2 border-t text-gray-500 text-sm">
         <div class="flex gap-3">
-            <button class="hover:text-black transition">❤️ Like</button>
+            
+          
+
+  @php
+$likedByUser = $post->likes()->where('user_id', auth()->id())->exists();
+@endphp
+
+<button class="like-btn hover:text-black transition" data-id="{{ $post->id }}">
+   <span class="heart-symbol {{ $likedByUser ? 'text-red-600' : 'text-gray-400' }}">
+    {{ $likedByUser ? '❤️' : '♡' }}
+</span>
+    <span class="likes-count">{{ $post->likes()->count() }}</span>
+</button>
+
+
             <button @click="showCommentForm = !showCommentForm" class="hover:text-black transition">💬 Comment</button>
             <button class="hover:text-black transition">🔗 Share</button>
         </div>
@@ -63,5 +79,34 @@
     </div>
 
 </div>
-</a>
+
 @endforeach
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+$('.like-btn').click(function() {
+    let btn = $(this);                     // 1. get the clicked button
+    let postId = btn.data('id');    // 2. get post ID from data attribute
+
+ btn.prop('disabled', true); // 🔥 prevent spam
+
+    $.post('/post/' + postId + '/like', {  // 3. send POST request to the route
+        _token: '{{ csrf_token() }}'      // 4. CSRF token
+    }, function(data) {                    // 5. callback runs when server responds
+        btn.find('.likes-count').text(data.likes_count); // 6. update like count
+
+        let heart = btn.find('.heart-symbol');
+
+        if(data.status === 'liked') {
+            heart.text('❤️').removeClass('text-gray-400').addClass('text-red-600');
+        } else {
+            heart.text('♡').removeClass('text-red-600').addClass('text-gray-400');
+        }
+    });
+});
+});
+</script>

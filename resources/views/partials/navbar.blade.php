@@ -5,7 +5,7 @@
         @if(auth()->user())
     <a href='/home'>    <h1 class="text-lg font-bold">{{ config('app.name') }}</h1></a>
     @else
-    <h1 class="text-lg font-bold">{{ config('app.name') }}</h1>
+   <a href="/"> <h1 class="text-lg font-bold">{{ config('app.name') }}</h1></a>
     @endif
 
 

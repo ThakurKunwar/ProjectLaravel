@@ -8,7 +8,7 @@
     <div class="flex items-center gap-3 p-4 border-b">
         <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
         <div>
-            <p class="font-semibold text-gray-800">{{ optional($post->user)->name ?? 'Unknown' }}</p>
+           <a href="/profile/{{$post->user->id}}"> <p class="font-semibold text-gray-800">{{ optional($post->user)->name ?? 'Unknown' }}</p></a>
             <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
         </div>
     </div>

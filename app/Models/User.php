@@ -24,15 +24,36 @@ class User extends Authenticatable
         'password',
         'is_verified',
     ];
-
+    //one user can like many post and one post can have like from many users
     public function likes()
     {
-        return $this->belongsToMany(Post::class, 'likes');
+        return $this->belongsToMany(Post::class, 'likes')->withTimestamps();
     }
-
+    //relationship with post
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    //who follow me 
+    public function followers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'follows', //table where this relation relevant
+            'following_id', //me in the following id 
+            'follower_id', //people who follow me 
+        )->withTimestamps();
+    }
+    //whom i follow
+    public function following()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'follows',
+            'follower_id',
+            'following_id',
+        )->withTimestamps();
     }
 
     /**

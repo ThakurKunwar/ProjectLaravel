@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
@@ -68,6 +69,12 @@ Route::middleware('auth')->group(function () {
 
     //for like
     Route::post('/post/{post}/like', [LikeController::class, 'toggle'])->name('post.like');
+
+    //for follow
+    Route::post('/follow/{user}', [FollowController::class, 'follow']);
+
+    //for profile changes in setting
+    Route::get('/settings/{user}/profile', [HomeController::class, 'settingsProfile'])->name('settings.changeProfile');
 });
 
 Route::get('/post/{post}', [PostController::class, 'viewPost']);

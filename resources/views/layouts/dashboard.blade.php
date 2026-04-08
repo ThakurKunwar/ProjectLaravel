@@ -33,14 +33,15 @@
             
             @if(auth()->check())
             <div class="bg-white p-5 rounded-xl shadow-md">
-                <h3 class="font-semibold text-gray-800 mb-3">Stats</h3>
+                <h3 class="font-semibold text-gray-800 mb-3">Your Stats</h3>
                 @if( !auth()->user())
                 
                 <p class="text-sm text-gray-600">Posts: {{ $posts->count() }}</p>
                 @else
                 <p class="text-sm text-gray-600">Posts: {{ auth()->user()->posts->count() }}</p>
                 @endif
-                <p class="text-sm text-gray-600">Followers: 0</p>
+                <p class="text-sm text-gray-600">Followers: {{auth()->user()->followers()->count()}}</p>
+                                <p class="text-sm text-gray-600">Following: {{auth()->user()->following()->count()}}</p>
             </div>
             @endif
 

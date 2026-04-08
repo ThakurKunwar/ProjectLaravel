@@ -6,6 +6,10 @@
 
 <div class="bg-white p-6 rounded-xl shadow-md space-y-4">
 
+    <a href="/settings/{{auth()->user()->id}}/profile" class="block p-3 border rounded-lg hover:bg-gray-50">
+        🖼️ Change Profile
+    </a>
+
     <a href="/settings/{{auth()->user()->id}}/password" class="block p-3 border rounded-lg hover:bg-gray-50">
         🔑 Change Password
     </a>

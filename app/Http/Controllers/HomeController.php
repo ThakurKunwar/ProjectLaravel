@@ -216,4 +216,9 @@ class HomeController extends Controller
 
         return redirect('/login')->with('success', 'password reset successfully');
     }
+
+    public function settingsProfile()
+    {
+        return view('settings.profile');
+    }
 }

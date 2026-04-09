@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
 
     //for profile changes in setting
     Route::get('/settings/{user}/profile', [HomeController::class, 'settingsProfile'])->name('settings.changeProfile');
+    Route::put('/settings/{user}/profile', [HomeController::class, 'updateSettingsProfile']);
 });
 
 Route::get('/post/{post}', [PostController::class, 'viewPost']);

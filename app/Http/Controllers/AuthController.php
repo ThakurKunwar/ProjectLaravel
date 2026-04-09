@@ -18,18 +18,33 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
 
-        $data = $request->validate([
-            'name' => 'required',
-            'email' => ['required', 'email', Rule::unique('users', 'email')],
-            'password' => 'required'
-        ]);
+        $data = $request->validate(
+            [
+                'name' => 'required',
+                'email' => ['required', 'email', Rule::unique('users', 'email')],
+                'password' => 'required',
+                'birthdate' => 'required|date|before:' . now()->subYears(12)->format('Y-m-d'),
+                'location' => 'required',
+
+
+            ],
+            [
+                //custom error message
+                'birthdate.before' => 'you must be 12 year old to create an account',
+            ]
+        );
+
+
 
         // Create user
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-            'is_verified' => false
+            'is_verified' => false,
+            'birthdate' => $data['birthdate'],
+            'location' => $data['location'],
+
         ]);
 
         // Generate token

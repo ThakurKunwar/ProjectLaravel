@@ -8,7 +8,13 @@
     <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
 
         <!-- PROFILE IMAGE -->
-        <div class="w-24 h-24 bg-gray-300 rounded-full"></div>
+      <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-300">
+    <img src="{{ $user->profile_picture 
+                ? Storage::url($user->profile_picture) 
+                : '/default-avatar.png' }}" 
+         alt="{{ $user->name }}'s profile picture"
+         class="w-full h-full object-cover">
+</div>
 
         <!-- USER INFO -->
         <div class="flex-1 text-center md:text-left">

@@ -4,14 +4,27 @@
 
 <div x-data="{ showCommentForm: false }" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
 
-    <!-- USER INFO -->
-    <div class="flex items-center gap-3 p-4 border-b">
-        <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-        <div>
-           <a href="/profile/{{$post->user->id}}"> <p class="font-semibold text-gray-800">{{ optional($post->user)->name ?? 'Unknown' }}</p></a>
-            <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
+   <!-- USER INFO -->
+<div class="flex items-center gap-3 p-4 border-b">
+    <!-- Profile Picture -->
+    <a href="/profile/{{ $post->user->id }}">
+        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-300">
+            <img src="{{ $post->user->profile_picture 
+                        ? Storage::url($post->user->profile_picture) 
+                        : '/default-avatar.png' }}" 
+                 alt="{{ $post->user->name }}'s profile picture"
+                 class="w-full h-full object-cover">
         </div>
+    </a>
+
+    <!-- User Name & Post Time -->
+    <div>
+        <a href="/profile/{{ $post->user->id }}">
+            <p class="font-semibold text-gray-800">{{ optional($post->user)->name ?? 'Unknown' }}</p>
+        </a>
+        <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
     </div>
+</div>
 
     <!-- IMAGE -->
     <a href="/post/{{$post->id}}">

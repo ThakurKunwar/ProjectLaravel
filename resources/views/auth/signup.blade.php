@@ -1,10 +1,14 @@
+{{-- 
+    Signup Page
+    Matches the design and style of the Login page exactly.
+    Uses the same layout, spacing, input styling, and error handling.
+--}}
 @extends('layouts.auth')
 
 @section('title', 'Signup')
 @section('heading', 'Create Account')
 
 @section('content')
-
 <form method="POST" action="/signup" class="space-y-5">
     @csrf
 
@@ -54,6 +58,38 @@
         @enderror
     </div>
 
+    <!-- Birthdate & Location Row -->
+    <div class="flex gap-3">
+        <div class="flex-1">
+            <label class="block text-gray-600 mb-1">Birthdate</label>
+            <input 
+                type="date" 
+                name="birthdate"
+                value="{{ old('birthdate') }}"
+                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-300
+                       @error('birthdate') border-red-500 @enderror"
+            >
+            @error('birthdate')
+                <span class="text-red-500 text-sm mt-1 block">*{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="flex-1">
+            <label class="block text-gray-600 mb-1">Location</label>
+            <input 
+                type="text" 
+                name="location"
+                value="{{ old('location') }}"
+                placeholder="City, Country"
+                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-300
+                       @error('location') border-red-500 @enderror"
+            >
+            @error('location')
+                <span class="text-red-500 text-sm mt-1 block">*{{ $message }}</span>
+            @enderror
+        </div>
+    </div>
+
     <button class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded-md transition">
         Signup
     </button>
@@ -63,5 +99,4 @@
     Already have an account?
     <a href="/login" class="text-gray-800 hover:underline">Login</a>
 </p>
-
 @endsection

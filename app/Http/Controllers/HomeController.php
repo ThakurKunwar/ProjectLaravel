@@ -221,4 +221,33 @@ class HomeController extends Controller
     {
         return view('settings.profile');
     }
+
+    public function updateSettingsProfile(Request $request)
+    {
+
+
+        $user = auth()->guard()->user();
+        $request->validate(
+            [
+
+                'birthdate' => ['date'],
+
+            ]
+        );
+
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->profile_picture = $path;
+        }
+
+        $user->bio = $request->bio;
+        $user->location = $request->location;
+        $user->website = $request->website;
+        $user->birthdate = $request->birthdate;
+        $user->email = $request->email;
+
+        $user->save();
+
+        return back()->with('success', 'profile updated successfully');
+    }
 }

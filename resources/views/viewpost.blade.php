@@ -4,18 +4,29 @@
 
 <div class="max-w-3xl mx-auto mt-6">
 
-    <!-- POST HEADER -->
-    <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
-        <div>
-            <p class="font-semibold text-gray-800">
-                <a href="/profile/{{ optional($post->user)->id ?? '#' }}" class="hover:underline">
-                    {{ optional($post->user)->name ?? 'Unknown' }}
-                </a>
-            </p>
-            <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
+  <!-- POST HEADER -->
+<div class="flex items-center gap-3 mb-4">
+    <!-- Profile Picture -->
+    <a href="/profile/{{ optional($post->user)->id ?? '#' }}">
+        <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-300">
+            <img src="{{ optional($post->user)->profile_picture 
+                        ? Storage::url($post->user->profile_picture) 
+                        : '/default-avatar.png' }}" 
+                 alt="{{ optional($post->user)->name ?? 'User' }}'s profile picture"
+                 class="w-full h-full object-cover">
         </div>
+    </a>
+
+    <!-- User Name & Post Time -->
+    <div>
+        <p class="font-semibold text-gray-800">
+            <a href="/profile/{{ optional($post->user)->id ?? '#' }}" class="hover:underline">
+                {{ optional($post->user)->name ?? 'Unknown' }}
+            </a>
+        </p>
+        <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
     </div>
+</div>
 
     <!-- POST IMAGE -->
     @if($post->image)

@@ -23,6 +23,12 @@ class User extends Authenticatable
         'email',
         'password',
         'is_verified',
+        'bio',
+        'birthdate',
+        'profile_picture',
+        'location',
+        'website'
+
     ];
     //one user can like many post and one post can have like from many users
     public function likes()

@@ -18,6 +18,7 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
 
+
         $data = $request->validate(
             [
                 'name' => 'required',
